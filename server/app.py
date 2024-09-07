@@ -4,14 +4,17 @@ from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from models import db, Category, Product, User
 import os
+from dotenv import load_dotenv
 
 app = Flask(__name__)
+load_dotenv()
 CORS(app)
 bcrypt = Bcrypt(app)
 
 # Configure SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ecommerce.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 
 # Initialize the database with the app
 db.init_app(app)
@@ -120,7 +123,6 @@ def delete_product(product_id):
     db.session.commit()
     return jsonify({'message': 'Product deleted successfully'}), 200
 
-
 @app.route('/api/products/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
     product = Product.query.get_or_404(product_id)
@@ -141,7 +143,6 @@ def update_product(product_id):
     db.session.commit()
     
     return jsonify(product.serialize), 200
-
 
 @app.route('/api/dashboard/products-count', methods=['GET'])
 def get_products_count():
